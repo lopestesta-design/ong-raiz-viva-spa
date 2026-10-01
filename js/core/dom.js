@@ -17,11 +17,14 @@ export function delegar(raiz, evento, seletor, manipulador) {
   });
 }
 
-/* Adia a execução até a pessoa parar de digitar. */
+/* Adia a execução até a pessoa parar de digitar.
+   A função devolvida tem .cancelar() para descartar uma execução ainda pendente. */
 export function debounce(funcao, espera = 400) {
   let temporizador;
-  return (...argumentos) => {
+  const adiada = (...argumentos) => {
     clearTimeout(temporizador);
     temporizador = setTimeout(() => funcao(...argumentos), espera);
   };
+  adiada.cancelar = () => clearTimeout(temporizador);
+  return adiada;
 }

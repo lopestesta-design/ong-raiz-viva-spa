@@ -25,8 +25,14 @@ js/
   data/                 dados (projetos, estados) e repositório de apoiadores
   modules/              menu, feedback (toast e modal), formulário, validação e máscaras
   templates/            componentes reutilizáveis e uma página por arquivo
+  vendor/               biblioteca externa embutida: chart.umd.js (Chart.js 4.5.1, licença MIT)
 tests/                  testes das regras de validação e máscaras
 ```
 
 ## Rotas
 `#/` início | `#/projetos` (e `#/projetos/hortas`) | `#/cadastro` | `#/apoiadores`
+
+## Biblioteca externa
+- **Chart.js 4.5.1** (MIT), usada para o gráfico de rosca da página de apoiadores.
+- O arquivo fica em `js/vendor/chart.umd.js` (sem CDN), e `js/modules/grafico.js` o carrega **sob demanda**, só quando há dados para mostrar.
+- Se a biblioteca falhar, a página continua funcionando: o resumo em texto (badges) não depende dela.

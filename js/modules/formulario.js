@@ -31,6 +31,12 @@ function preencher(form, dados) {
   }
 }
 
+/* Um rascunho só vale a pena se a pessoa realmente preencheu alguma coisa. */
+function temConteudo(dados) {
+  return Object.entries(dados).some(([nome, valor]) =>
+    nome === "areas" ? valor.length > 0 : typeof valor === "boolean" ? valor : String(valor).trim() !== "");
+}
+
 /* ---------- feedback de erro (ligado por aria-invalid + aria-describedby) ---------- */
 function elementoDoCampo(form, nome) {
   const el = form.elements[nome];
@@ -71,13 +77,16 @@ export function iniciarFormulario(raiz) {
 
   /* recupera o que a pessoa já tinha digitado */
   const rascunho = lerRascunho();
-  if (rascunho) {
+  if (rascunho && temConteudo(rascunho)) {
     preencher(form, rascunho);
     mostrarToast("Recuperamos o que você já tinha preenchido.", "info");
   }
 
   /* salva o rascunho enquanto digita (com atraso, para não gravar a cada tecla) */
-  const guardar = debounce(() => salvarRascunho(coletarDados(form)), 400);
+  const guardar = debounce(() => {
+    const dados = coletarDados(form);
+    if (temConteudo(dados)) salvarRascunho(dados);
+  }, 400);
   form.addEventListener("input", guardar);
   form.addEventListener("change", guardar);
 
@@ -100,6 +109,7 @@ export function iniciarFormulario(raiz) {
 
   /* limpar formulário: apaga erros e rascunho */
   form.addEventListener("reset", () => {
+    guardar.cancelar();
     limparErros(form);
     apagarRascunho();
   });
@@ -128,6 +138,7 @@ export function iniciarFormulario(raiz) {
       mostrarToast("Não foi possível salvar. O armazenamento do navegador pode estar cheio ou bloqueado.", "erro");
       return;
     }
+    guardar.cancelar();
     apagarRascunho();
     form.reset();
     mostrarToast("Cadastro salvo com sucesso!", "sucesso");
